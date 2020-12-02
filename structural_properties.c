@@ -7,58 +7,45 @@
 #include "cgraph_vector.h"
 
 int cgraph_is_dag(const cgraph_t *graph, bool *res) {
-  if (!cgraph_is_directed(graph)) {
+  *res = true;
+
+  if(!cgraph_is_directed(graph)) {
     *res = false;
     return 0;
   }
 
-  CGRAPH_INTEGER no_of_nodes = cgraph_vcount(graph);
-  cgraph_ivec_t degrees = cgraph_ivec_create(), 
-                neis = cgraph_ivec_create();
-  cgraph_iqueue_t sources = cgraph_iqueue_create();
-  CGRAPH_INTEGER node, i, j, nei, vertices_left;
+  CGRAPH_INTEGER no_of_vertices = cgraph_vcount(graph);
 
-  cgraph_degree_all(graph, &degrees, CGRAPH_OUT, true);
-
-  vertices_left = no_of_nodes;
-
-  /* Do we have nodes with no incoming edges? */
-  for (i = 0; i < no_of_nodes; i++) {
-    if (degrees[i] == 0) {
-      CGRAPH_CHECK(cgraph_iqueue_enqueue(sources, i));
-    }
-  }
-
-  /* Take all nodes with no incoming edges and remove them */
-  while (!cgraph_iqueue_empty(sources)) {
-    CGRAPH_INTEGER tmp = cgraph_iqueue_poll(sources, &node); 
-    /* Exclude the node from further source searches */
-    degrees[node] = -1;
-    vertices_left--;
+  for(int i = 0; i < no_of_vertices; i++) {
+    /* use bfs to verify if there is a path from one vertex to itself */
+    cgraph_iqueue_t source = cgraph_iqueue_create();
+    CGRAPH_INTEGER passed[no_of_vertices];
+    CGRAPH_INTEGER pop;
     
-    /* Get the neighbors and decrease their degrees by one */
-    CGRAPH_CHECK(cgraph_neighbors(graph, &neis, node, CGRAPH_IN));
-    j = cgraph_ivec_size(neis);
-    for (i = 0; i < j; i++) {
-      nei = neis[i];
-      if (nei == node) {
-        continue;
-      }
-      degrees[nei]--;
-      if (degrees[nei] == 0) {
-        CGRAPH_CHECK(cgraph_iqueue_enqueue(sources, nei));
+    memset(passed, 0, no_of_vertices * sizeof(CGRAPH_INTEGER));
+
+    cgraph_iqueue_enqueue(source, i);
+    passed[i] = 1;
+
+    while(!cgraph_iqueue_empty(source)) {
+      cgraph_iqueue_poll(source, &pop);
+      for(int j = graph->os[pop]; j < graph->os[pop + 1]; j++) {
+        int node = graph->to[ graph->oi[j] ];
+
+        if(!passed[node]) {
+          passed[node] = 1;
+          cgraph_iqueue_enqueue(source, node);
+        }
+        else if(passed[node] && node == i) {
+          *res = false;
+          cgraph_iqueue_free(&source);
+          return 0;
+        }
+
       }
     }
+
+    cgraph_iqueue_free(&source);
   }
-
-  *res = (vertices_left == 0);
-  if (vertices_left < 0) {
-    CGRAPH_ERROR("vertices_left < 0 in igraph_is_dag, possible bug");
-  }
-
-  cgraph_ivec_free(&degrees);
-  cgraph_ivec_free(&neis);
-  cgraph_iqueue_free(&sources);
-
   return 0;
 }
