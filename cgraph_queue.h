@@ -1,25 +1,24 @@
-#ifndef CGRAPH_QUEUE_H_
-#define CGRAPH_QUEUE_H_
+#ifndef CGRAPH_MINIMAL_GENERIC_QUEUE_H_
+#define CGRAPH_MINIMAL_GENERIC_QUEUE_H_
 
-/*
-  Collections-C queue wrapper for integer type
-*/
+#include <stdbool.h>
 
-#include "cgraph_datatype.h"
-#include "ctc/queue.h"
+typedef struct cgraph_queue_s CGraphQueue;
 
-typedef Queue *cgraph_iqueue_t;
-typedef const Queue *cgraph_iqueue_const_t;
+#ifdef __cplusplus
+extern "C"{
+#endif 
 
-cgraph_iqueue_t cgraph_iqueue_create();
+CGraphQueue* cgraph_queue_create();
+void cgraph_queue_free(CGraphQueue *q);
+int cgraph_queue_enqueue(CGraphQueue *q, void *value);
+int cgraph_queue_poll(CGraphQueue *q, void **out);
+int cgraph_queue_peek(const CGraphQueue *const q, void **out);
+size_t cgraph_queue_size(const CGraphQueue *const q);
+bool cgraph_queue_empty(const CGraphQueue *const q);
 
-int cgraph_iqueue_peek(cgraph_iqueue_const_t const q, CGRAPH_INTEGER *out);
-int cgraph_iqueue_poll(cgraph_iqueue_t q, CGRAPH_INTEGER *out);
-int cgraph_iqueue_enqueue(cgraph_iqueue_t q, CGRAPH_INTEGER element);
+#ifdef __cplusplus
+}
+#endif 
 
-size_t cgraph_iqueue_size(cgraph_iqueue_const_t const q);
-bool cgraph_iqueue_empty(cgraph_iqueue_t const q);
-
-void cgraph_iqueue_free(cgraph_iqueue_t *q);
-
-#endif  // CGRAPH_QUEUE_H_
+#endif // CGRAPH_MINIMAL_GENERIC_QUEUE_H_

@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "cgraph_queue.h"
+#include "cgraph_iqueue.h"
 #include "ut.h"
 
 int main() {
@@ -30,7 +30,7 @@ int main() {
       return 1;
     }
   }
-  UT_MSG_OK("Queue test: Ok");
+  UT_MSG_OK("Queue test");
   cgraph_iqueue_free(&q);
   return 0;
 }
