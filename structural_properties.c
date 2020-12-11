@@ -3,8 +3,9 @@
 #include "cgraph_error.h"
 #include "cgraph_interface.h"
 #include "cgraph_iqueue.h"
-#include "cgraph_topology.h"
 #include "cgraph_ivec.h"
+#include "cgraph_paths.h"
+#include "cgraph_topology.h"
 
 int cgraph_is_dag(const cgraph_t *graph, bool *res) {
   *res = true;
