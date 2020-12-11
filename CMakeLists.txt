@@ -14,7 +14,7 @@ if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
 endif()
 
 if (WARN_ERROR)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror -Wall")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 endif ()
 
 include_directories(${CMAKE_SOURCE_DIR})
