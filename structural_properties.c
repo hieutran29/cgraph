@@ -6,6 +6,9 @@
 #include "cgraph_ivec.h"
 #include "cgraph_paths.h"
 #include "cgraph_topology.h"
+#include "cgraph_types_internal.h"
+
+#include <stdlib.h>
 
 #include <string.h>
 
@@ -184,4 +187,21 @@ int cgraph_get_shortest_path_dijkstra(const cgraph_t *graph,
   cgraph_iqueue_free(&bfs);
 
   return 0;
+}
+
+int cgraph_get_shortest_path(const cgraph_t *graph,
+        cgraph_ivec_t *vertices,
+        cgraph_ivec_t *edges,
+        CGRAPH_INTEGER from,
+        CGRAPH_INTEGER to,
+        cgraph_neimode_t mode) {
+  CGRAPH_INTEGER no_of_edges = cgraph_ecount(graph);
+  cgraph_rvec_t weights = cgraph_rvec_create();
+  cgraph_rvec_init(&weights, no_of_edges);
+  for (CGRAPH_INTEGER i = 0; i < no_of_edges; ++i) {
+    weights[i] = 1.0;
+  }
+  CGRAPH_INTEGER ret = cgraph_get_shortest_path_dijkstra(graph, vertices, edges, from, to, weights, mode);
+  cgraph_rvec_free(&weights);
+  return ret;
 }
