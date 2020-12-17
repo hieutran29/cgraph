@@ -18,7 +18,7 @@ int cgraph_get_shortest_path_dijkstra(const cgraph_t *graph,
         cgraph_ivec_t *edges,
         CGRAPH_INTEGER from,
         CGRAPH_INTEGER to,
-        cgraph_rvec_t weights,
+        const double *weights,
         cgraph_neimode_t mode);
 
 #endif  // CGRAPH_PATHS_H_

@@ -89,8 +89,7 @@ int cgraph_topological_sorting(const cgraph_t *graph,
   }
   return 0;
 }
-#include <stdio.h>
-#include <stdlib.h>
+
 int cgraph_get_shortest_path_dijkstra(const cgraph_t *graph,
         cgraph_ivec_t *vertices,
         cgraph_ivec_t *edges,
@@ -98,7 +97,12 @@ int cgraph_get_shortest_path_dijkstra(const cgraph_t *graph,
         CGRAPH_INTEGER to,
         const double *weights,
         cgraph_neimode_t mode) {
-
+  printf("%d\n", to);
+  cgraph_ivec_free(vertices);
+  cgraph_ivec_free(edges);
+  *vertices = cgraph_ivec_create();
+  *edges = cgraph_ivec_create();
+  
   int index = 0;
 
   double total_weight[graph->n];
@@ -110,9 +114,10 @@ int cgraph_get_shortest_path_dijkstra(const cgraph_t *graph,
     tracking[i] = -1;
     passed[i] = 0;
   }
+  tracking[from] = from;
   
   cgraph_iqueue_t bfs = cgraph_iqueue_create();
-  cgraph_iqueue_enqueue(bfs, from);
+  // cgraph_iqueue_enqueue(bfs, from);
 
   cgraph_ivec_t nei = cgraph_ivec_create();
   /* base step */
@@ -126,6 +131,7 @@ int cgraph_get_shortest_path_dijkstra(const cgraph_t *graph,
       }
     }
     tracking[ nei[i] ] = from;
+    cgraph_iqueue_enqueue(bfs, nei[i]);
   }
 
   while(!cgraph_iqueue_empty(bfs)) {
@@ -153,7 +159,11 @@ int cgraph_get_shortest_path_dijkstra(const cgraph_t *graph,
       }
     }
   }
-
+  // if(to == 3) {
+  //   for(int i = 0; i < graph->n; i++) {
+  //     printf("%d ", tracking[i]);
+  //   }
+  // }
   CGRAPH_INTEGER i = to;
   while(true) {
     if(i == from) {
