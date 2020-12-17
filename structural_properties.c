@@ -97,12 +97,12 @@ int cgraph_get_shortest_path_dijkstra(const cgraph_t *graph,
         CGRAPH_INTEGER to,
         const double *weights,
         cgraph_neimode_t mode) {
-  printf("%d\n", to);
+
   cgraph_ivec_free(vertices);
   cgraph_ivec_free(edges);
   *vertices = cgraph_ivec_create();
   *edges = cgraph_ivec_create();
-  
+
   int index = 0;
 
   double total_weight[graph->n];
@@ -125,7 +125,13 @@ int cgraph_get_shortest_path_dijkstra(const cgraph_t *graph,
   total_weight[from] = 0;
   for(int i = 0; i < cgraph_ivec_size(nei); i++) {
     for(index = 0; index < graph->n; index++) {
-      if(graph->from[index] == from && graph->to[index] == nei[i]) {
+      if(mode == CGRAPH_OUT && 
+        graph->from[index] == from && graph->to[index] == nei[i]) {
+        total_weight[ nei[i] ] = weights[index];
+        break;
+      }
+      else if(mode == CGRAPH_IN &&
+            graph->to[index] == from && graph->from[index] == nei[i]) {
         total_weight[ nei[i] ] = weights[index];
         break;
       }
@@ -143,7 +149,12 @@ int cgraph_get_shortest_path_dijkstra(const cgraph_t *graph,
     for(int i = 0; i < cgraph_ivec_size(nei); i++) {
       /* find weight's index */
       for(index = 0; index < cgraph_ivec_size(graph->from); index++) {
-        if(graph->from[index] == out && graph->to[index] == nei[i]) {
+        if(mode == CGRAPH_OUT &&
+          graph->from[index] == out && graph->to[index] == nei[i]) {
+          break;
+        }
+        else if(mode == CGRAPH_IN &&
+              graph->to[index] == from && graph->from[index] == nei[i]) {
           break;
         }
       }
@@ -159,11 +170,7 @@ int cgraph_get_shortest_path_dijkstra(const cgraph_t *graph,
       }
     }
   }
-  // if(to == 3) {
-  //   for(int i = 0; i < graph->n; i++) {
-  //     printf("%d ", tracking[i]);
-  //   }
-  // }
+
   CGRAPH_INTEGER i = to;
   while(true) {
     if(i == from) {
@@ -175,7 +182,12 @@ int cgraph_get_shortest_path_dijkstra(const cgraph_t *graph,
       i = tracking[i];
     }
   }
-
+  if(to == 3) {
+    printf("size: %d\n", cgraph_ivec_size(*vertices));
+    for(int i = 0; i < cgraph_ivec_size(*vertices); i++) {
+      printf("%d ", (*vertices)[i]);
+    }
+  }
   /* we need to reverse the vector vertices */
   for(int i = 0; i < cgraph_ivec_size(*vertices) / 2; i++) {
     int swap = (*vertices)[i];
@@ -186,10 +198,18 @@ int cgraph_get_shortest_path_dijkstra(const cgraph_t *graph,
   /* vector edges */
   for(int i = 0; i < cgraph_ivec_size(*vertices) - 1; i++) {
       for(index = 0; index < cgraph_ivec_size(graph->from); index++) {
-        if(graph->from[index] == (*vertices)[i] && graph->to[index] == (*vertices)[i+1]) {
+        if(mode == CGRAPH_OUT &&
+          graph->from[index] == (*vertices)[i] && 
+          graph->to[index] == (*vertices)[i+1]) {
           cgraph_ivec_push_back(edges, index);
           break;
         }
+        else if(mode == CGRAPH_IN &&
+          graph->to[index] == (*vertices)[i] &&
+          graph->from[index] == (*vertices)[i+1]) {
+            cgraph_ivec_push_back(edges, index);
+            break;
+          }
       }
   }
 
